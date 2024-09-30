@@ -14,12 +14,17 @@ import (
 )
 
 // 此处列出来的方法对 starlark 不可见
-var hiddenMethods = map[string]bool{"save_png": true, "load_font_face": true}
+var hiddenMethods = map[string]bool{
+	"set_color":      true,
+	"save_png":       true,
+	"load_font_face": true,
+}
 
 // 名称映射，默认使用 changecase.Pascal 将 starlark 名称转为 Go 名称，
 // 但是有些名称无法适用这个规则，此处可以手动指定
 var drawContextAttrNameMapping = map[string]string{
-	"set_rgb": "SetRGB",
+	"set_rgb":  "SetRGB",
+	"set_rgba": "SetRGBA",
 }
 
 // 扩展 gg.Context 上面不存在的方法

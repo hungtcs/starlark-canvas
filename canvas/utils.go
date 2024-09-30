@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/fogleman/gg"
 	"go.starlark.net/starlark"
 )
 
@@ -24,6 +25,7 @@ func UnpackMethodArgs(name string, args starlark.Tuple, kwargs []starlark.Tuple,
 	for i := 0; i < count; i++ {
 		typ := methodType.In(i)
 		value := values[i]
+
 		switch typ.Kind() {
 		case reflect.String:
 			if str, ok := ValueToGoString(value); ok {
@@ -32,10 +34,24 @@ func UnpackMethodArgs(name string, args starlark.Tuple, kwargs []starlark.Tuple,
 				return nil, fmt.Errorf("method %s args index %d expected string but got %s", name, i, value.Type())
 			}
 		case reflect.Int:
+			var val int
 			if v, ok := ValueToGoInt[int](value); ok {
-				methodArgs[i] = reflect.ValueOf(v)
+				val = v
 			} else {
 				return nil, fmt.Errorf("method %s args index %d expected int but got %s", name, i, value.Type())
+			}
+			// 处理一些枚举类型
+			switch typ.Name() {
+			case "Align":
+				methodArgs[i] = reflect.ValueOf(gg.Align(val))
+			case "LineCap":
+				methodArgs[i] = reflect.ValueOf(gg.LineCap(val))
+			case "LineJoin":
+				methodArgs[i] = reflect.ValueOf(gg.LineJoin(val))
+			case "FillRule":
+				methodArgs[i] = reflect.ValueOf(gg.FillRule(val))
+			default:
+				methodArgs[i] = reflect.ValueOf(val)
 			}
 		case reflect.Float64:
 			if v, ok := ValueToGoFloat[float64](value); ok {
